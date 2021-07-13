@@ -14,46 +14,66 @@ from flask import request
 
 TULL_URL = "http://localhost:17171/tull/"
 HOME = expanduser("~")
-LOG_PATH=HOME + "/.tull/"
+LOG_PATH = HOME + "/.tull/"
 
 
 if len(sys.argv) > 1 and sys.argv[1] == "stop":
     try:
-        requests.get("http://localhost:17171/halt" )
+        requests.get("http://localhost:17171/halt")
     except:
         pass
     raise SystemExit
 
 if len(sys.argv) > 1 and sys.argv[1] == "server":
     # disable flask banner
-    cli = sys.modules['flask.cli']
+    cli = sys.modules["flask.cli"]
     cli.show_server_banner = lambda *x: None
-
 
     app = Flask(__name__)
 
-    @app.route('/tull/<tull_id>')
+    @app.route("/tull")
+    def get_list():
+        response = ""
+        response += "<html>"
+
+        for link in [
+            '<a href="/tull/' + x + '">' + x + "</a>"
+            for x in sorted(
+                os.listdir(LOG_PATH),
+                key=lambda x: os.path.getmtime(LOG_PATH + x),
+                reverse=True,
+            )
+        ]:
+            response += link + "<br></br>"
+
+        response += "</html>"
+        return response
+
+    @app.route("/tull/<tull_id>")
     def get_logs(tull_id):
         with open(LOG_PATH + tull_id) as f:
-            return "<br>".join([ x for x in f.readlines() ])
+            return "<br>".join([x for x in f.readlines()])
 
-    @app.route('/tull')
-    def get_list():
-        return "<br>".join([ "<a href=\"" + x + "\"/>" for x in os.listdir(LOG_PATH)])
-
-    @app.route('/halt')
+    @app.route("/halt")
     def halt_server():
         import signal
-        os.kill(os.getpid(),signal.SIGKILL)
+
+        os.kill(os.getpid(), signal.SIGKILL)
 
     app.run(debug=False, use_reloader=False, port=17171)
+    sys.exit(0)
 
 
 try:
     requests.get(TULL_URL)
 except:
-    FNULL = open(os.devnull, 'w')
-    subprocess.Popen([os.path.realpath(__file__), 'server'],close_fds=True, stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT )
+    FNULL = open(os.devnull, "w")
+    subprocess.Popen(
+        [os.path.realpath(__file__), "server"],
+        close_fds=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.STDOUT,
+    )
     time.sleep(1)
 
 sid = str(uuid4())
@@ -67,7 +87,7 @@ except:
     raise Exception("Can't create the .tull folder")
 
 try:
-    with open(LOG_PATH + sid,"a+") as f:
+    with open(LOG_PATH + sid, "a+") as f:
         for line in sys.stdin:
             f.write(line)
             sys.stdout.write(line)
@@ -76,6 +96,5 @@ except:
     pass
 
 finally:
-    if  cnt==0:
+    if cnt == 0:
         os.remove(LOG_PATH + sid)
-
