@@ -11,9 +11,15 @@ from flask import Flask
 from os.path import expanduser
 from uuid import uuid4
 
-TULL_API_URL = "http://localhost:17171/tull/"
+HOST = "localhost"
+PORT = 17171
+
+TULL_API_URL = "http://{}:{}/tull/api".format(HOST, int(PORT))
+TULL_WEB_URL = "http://{}:{}/tull/web".format(HOST, int(PORT))
 USER_HOME = expanduser("~")
-TULL_DATA_DIR = USER_HOME + "/.tull/"
+TULL_DATA_DIR = USER_HOME + "/.tull/data/"
+TULL_META_DIR = USER_HOME + "/.tull/meta/"
+
 
 PAGE_REFRESH_JS = '<script>window.setInterval("refresh()", 10000); function refresh() {window .location.reload();}</script>'
 
@@ -34,10 +40,19 @@ def head(x):
 
 def halt_tull_server():
     try:
-        requests.get("http://localhost:17171/server/halt")
+        requests.get("http://{}:{}/server/halt".format(HOST, PORT))
     except:
         pass
     sys.exit(0)
+
+
+def check_tull_server_status():
+    try:
+        requests.get("http://{}:{}/tull/web".format(HOST, PORT))
+        return True
+    except:
+        pass
+    return False
 
 
 def start_tull_server_flask_app():
@@ -49,19 +64,46 @@ def start_tull_server_flask_app():
     # create flask app with apis
     app = Flask(__name__)
 
-    # @app.route("/tull/")
-    # def get_list_():
-    #     return get_list()
+    @app.route("/tull/api/")
+    def get_list_api_():
+        return get_list_api()
 
-    @app.route("/tull")
+    @app.route("/tull/api")
+    def get_list_api():
+        return {
+            "data": [
+                x
+                for x in sorted(
+                    os.listdir(TULL_DATA_DIR),
+                    key=lambda x: os.path.getatime(TULL_DATA_DIR + x),
+                    reverse=True,
+                )
+            ]
+        }
+
+    @app.route("/tull/api/<tull_id>")
+    def get_logs_api(tull_id):
+
+        try:
+            if tull_id in os.listdir(TULL_DATA_DIR):
+                with open(TULL_DATA_DIR + tull_id) as f:
+                    return {"data": [x for x in f.readlines()]}
+        except:
+            return {"data": None}
+
+    @app.route("/tull/web/")
+    def get_list_():
+        return get_list()
+
+    @app.route("/tull/web")
     def get_list():
         response = ""
 
         for link in [
-            '<a href="/tull/' + x + '">' + x + "</a>"
+            '<a href="/tull/web/' + x + '">' + x + "</a>"
             for x in sorted(
                 os.listdir(TULL_DATA_DIR),
-                key=lambda x: os.path.getctime(TULL_DATA_DIR + x),
+                key=lambda x: os.path.getatime(TULL_DATA_DIR + x),
                 reverse=True,
             )
         ]:
@@ -69,7 +111,7 @@ def start_tull_server_flask_app():
 
         return html(body(response))
 
-    @app.route("/tull/<tull_id>")
+    @app.route("/tull/web/<tull_id>")
     def get_logs(tull_id):
 
         try:
@@ -94,24 +136,32 @@ def ensure_tull_server():
     try:
         requests.get(TULL_API_URL)
     except:
-        f = open(TULL_DATA_DIR + "tull-server.log", "a+")
-
-        subprocess.Popen(
-            [os.path.realpath(__file__), "start"], close_fds=True, stdout=f, stderr=f
-        )
-        time.sleep(1)
-        if os.isatty(0):
-            print(
-                "Server was not running, so started it. STDIN would go into the tull."
+        f = open(TULL_META_DIR + "tull-server.log", "a+")
+        try:
+            subprocess.Popen(
+                [os.path.realpath(__file__), "--start"],
+                close_fds=True,
+                stdout=f,
+                stderr=f,
             )
+        except:
+            print("Failed to start server. Exiting.")
+            sys.exit(1)
+        time.sleep(1)
+        # if os.isatty(0):
+        #    print(
+        #        "Server was not running, so started it. STDIN would go into the tull."
+        #    )
 
 
 def ensure_tull_data_dir():
     try:
         if not os.path.isdir(TULL_DATA_DIR):
-            os.mkdir(TULL_DATA_DIR)
+            os.makedirs(TULL_DATA_DIR)
+        if not os.path.isdir(TULL_META_DIR):
+            os.makedirs(TULL_META_DIR)
     except:
-        raise Exception("TULL_DATA_DIR creation failed.")
+        raise Exception("Directory creation failed.")
 
 
 def main_loop(sid):
@@ -148,11 +198,39 @@ def setup_this_tull():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "stop":
-        halt_tull_server()
+    import argparse
 
-    if len(sys.argv) > 1 and sys.argv[1] == "start":
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--start", action="store_true")
+    parser.add_argument("--stop", action="store_true")
+    parser.add_argument("--status", action="store_true")
+
+    parser.add_argument(
+        "--host", help="default is localhost", type=str, default="localhost"
+    )
+
+    parser.add_argument("--port", help="default is 17171", type=int, default=17171)
+
+    args = parser.parse_args()
+
+    if args.status:
+        print(check_tull_server_status())
+        sys.exit(0)
+
+    if args.stop:
+        halt_tull_server()
+        sys.exit(0)
+
+    if args.start:
         start_tull_server_flask_app()
+        sys.exit(0)
+
+    if args.host:
+        HOST = args.host
+
+    if args.port:
+        PORT = args.port
 
     ensure_tull_server()
     ensure_tull_data_dir()
