@@ -44,3 +44,6 @@ Future Plans:-
  2. Better UI for /web interface
  3. API pagination for /api interface
  4. Streaming for /raw interface
+ 5. Make readme look good
+ 6. Add tutorial
+ 7. Add gif
