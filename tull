@@ -35,7 +35,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "server":
     @app.route('/tull/<tull_id>')
     def get_logs(tull_id):
         with open(LOG_PATH + tull_id) as f:
-            return "<br>".join([ x for x in f.readlines() ][::-1])
+            return "<br>".join([ x for x in f.readlines() ])
 
     @app.route('/tull')
     def get_list():
