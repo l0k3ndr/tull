@@ -1,36 +1,61 @@
 #!/usr/bin/env python3
 import sys
+import signal
 import os
-from uuid import uuid4
-from os.path import expanduser
+import requests
+import time
+import subprocess
 
+from os.path import expanduser
+from uuid import uuid4
 from flask import Flask
 from flask import request
 
-home = expanduser("~")
 
-LOG_PATH=home + "/.tull/"
+TULL_URL = "http://localhost:17171/tull/"
+HOME = expanduser("~")
+LOG_PATH=HOME + "/.tull/"
+
+
+if len(sys.argv) > 1 and sys.argv[1] == "stop":
+    requests.get("http://localhost:17171/halt" )
+    raise SystemExit
 
 if len(sys.argv) > 1 and sys.argv[1] == "server":
+    # disable flask banner
+    cli = sys.modules['flask.cli']
+    cli.show_server_banner = lambda *x: None
+
+
     app = Flask(__name__)
 
     @app.route('/tull/<tull_id>')
     def get_logs(tull_id):
         with open(LOG_PATH + tull_id) as f:
-            return f.read()
+            return "<br>".join([ x for x in f.readlines() ][::-1])
 
     @app.route('/tull')
     def get_list():
         return "<br>".join([ "<a href=\"" + x + "\"/>" for x in os.listdir(LOG_PATH)])
 
+    @app.route('/halt')
+    def halt_server():
+        import signal
+        os.kill(os.getpid(),signal.SIGKILL)
 
-    app.run()
+    app.run(debug=False, use_reloader=False, port=17171)
 
 
+try:
+    requests.get(TULL_URL)
+except:
+    FNULL = open(os.devnull, 'w')
+    subprocess.Popen([os.path.realpath(__file__), 'server'],close_fds=True, stdout=subprocess.DEVNULL,stderr=subprocess.STDOUT )
+    time.sleep(1)
 
 sid = str(uuid4())
-cnt = 0 
-print("http://localhost:5000/" + sid)
+cnt = 0
+os.system("open " + TULL_URL + sid)
 
 try:
     if not os.path.isdir(LOG_PATH):
@@ -44,6 +69,9 @@ try:
             f.write(line)
             sys.stdout.write(line)
             cnt += 1
+except:
+    pass
+
 finally:
     if  cnt==0:
         os.remove(LOG_PATH + sid)
