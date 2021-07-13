@@ -21,6 +21,12 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
+        "click==8.0.1",
+        "itsdangerous==2.0.1",
+        "Jinja2==3.0.1",
+        "MarkupSafe==2.0.1",
+        "requests==2.26.0",
+        "Werkzeug==2.0.1",
         "Flask==2.0.1",
         "bleach==3.3.0",
         "certifi==2021.5.30",
