@@ -16,6 +16,7 @@ PORT = 17171
 
 TULL_API_URL = "http://{}:{}/tull/api".format(HOST, int(PORT))
 TULL_WEB_URL = "http://{}:{}/tull/web".format(HOST, int(PORT))
+TULL_RAW_URL = "http://{}:{}/tull/raw".format(HOST, int(PORT))
 USER_HOME = expanduser("~")
 TULL_DATA_DIR = USER_HOME + "/.tull/data/"
 TULL_META_DIR = USER_HOME + "/.tull/meta/"
@@ -63,6 +64,31 @@ def start_tull_server_flask_app():
 
     # create flask app with apis
     app = Flask(__name__)
+
+    @app.route("/tull/raw/")
+    def get_list_raw_():
+        return get_list_api()
+
+    @app.route("/tull/raw")
+    def get_list_raw():
+        return "\n".join(
+            x
+            for x in sorted(
+                os.listdir(TULL_DATA_DIR),
+                key=lambda x: os.path.getatime(TULL_DATA_DIR + x),
+                reverse=True,
+            )
+        )
+
+    @app.route("/tull/raw/<tull_id>")
+    def get_logs_raw(tull_id):
+
+        try:
+            if tull_id in os.listdir(TULL_DATA_DIR):
+                with open(TULL_DATA_DIR + tull_id) as f:
+                    return f.read()
+        except:
+            return ""
 
     @app.route("/tull/api/")
     def get_list_api_():
@@ -190,11 +216,11 @@ def setup_this_tull():
     with open(TULL_DATA_DIR + sid, "w"):
         pass
 
-    # open browser window to current tull stream
-    try:
-        os.system("open " + TULL_API_URL + sid)
-    except:
-        pass
+    # # open browser window to current tull stream
+    # try:
+    #     os.system("open " + TULL_API_URL + sid)
+    # except:
+    #     pass
 
     main_loop(sid)
 
@@ -204,6 +230,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
+    parser.add_argument("--web", action="store_true")
     parser.add_argument("--start", action="store_true")
     parser.add_argument("--stop", action="store_true")
     parser.add_argument("--status", action="store_true")
@@ -233,6 +260,11 @@ if __name__ == "__main__":
 
     if args.port:
         PORT = args.port
+
+    if args.web:
+        print("TULL_API_URL", TULL_API_URL)
+        print("TULL_WEB_URL", TULL_WEB_URL)
+        print("TILL_RAW_URL", TULL_RAW_URL)
 
     ensure_tull_server()
     ensure_tull_data_dir()
