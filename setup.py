@@ -6,11 +6,11 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="tull",
-    version="0.4",
+    version="0.5",
     scripts=["tull"],
     author="Lokendra Sharma",
     author_email="lokendra.sharma.one@gmail.com",
-    description="tull helps you tull",
+    description="tull helps you to Teleport Ur Logs with Love",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/l0k3ndr/tull",
