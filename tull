@@ -18,7 +18,10 @@ LOG_PATH=HOME + "/.tull/"
 
 
 if len(sys.argv) > 1 and sys.argv[1] == "stop":
-    requests.get("http://localhost:17171/halt" )
+    try:
+        requests.get("http://localhost:17171/halt" )
+    except:
+        pass
     raise SystemExit
 
 if len(sys.argv) > 1 and sys.argv[1] == "server":
