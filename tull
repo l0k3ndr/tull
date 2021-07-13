@@ -11,7 +11,7 @@ from flask import Flask, jsonify
 from os.path import expanduser
 from uuid import uuid4
 
-HOST = "localhost"
+HOST = "127.0.0.1"
 PORT = 17171
 
 TULL_API_URL = "http://{}:{}/tull/api".format(HOST, int(PORT))
@@ -156,7 +156,7 @@ def start_tull_server_flask_app():
     def halt_server():
         os.kill(os.getpid(), signal.SIGKILL)
 
-    app.run(debug=False, use_reloader=False, port=17171)
+    app.run(host=HOST, load_dotenv=False, debug=False, use_reloader=False, port=17171)
     sys.exit(0)
 
 
