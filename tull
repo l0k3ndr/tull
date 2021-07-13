@@ -7,7 +7,7 @@ import subprocess
 import sys
 import time
 
-from flask import Flask
+from flask import Flask, jsonify
 from os.path import expanduser
 from uuid import uuid4
 
@@ -70,16 +70,18 @@ def start_tull_server_flask_app():
 
     @app.route("/tull/api")
     def get_list_api():
-        return {
-            "data": [
-                x
-                for x in sorted(
-                    os.listdir(TULL_DATA_DIR),
-                    key=lambda x: os.path.getatime(TULL_DATA_DIR + x),
-                    reverse=True,
-                )
-            ]
-        }
+        return jsonify(
+            {
+                "data": [
+                    x
+                    for x in sorted(
+                        os.listdir(TULL_DATA_DIR),
+                        key=lambda x: os.path.getatime(TULL_DATA_DIR + x),
+                        reverse=True,
+                    )
+                ]
+            }
+        )
 
     @app.route("/tull/api/<tull_id>")
     def get_logs_api(tull_id):
@@ -87,9 +89,9 @@ def start_tull_server_flask_app():
         try:
             if tull_id in os.listdir(TULL_DATA_DIR):
                 with open(TULL_DATA_DIR + tull_id) as f:
-                    return {"data": [x for x in f.readlines()]}
+                    return jsonify({"data": [x for x in f.readlines()]})
         except:
-            return {"data": None}
+            return jsonify({"data": None})
 
     @app.route("/tull/web/")
     def get_list_():
