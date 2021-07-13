@@ -1,100 +1,160 @@
 #!/usr/bin/env python3
-import sys
-import signal
+
 import os
 import requests
-import time
+import signal
 import subprocess
+import sys
+import time
 
+from flask import Flask
 from os.path import expanduser
 from uuid import uuid4
-from flask import Flask
-from flask import request
+
+TULL_API_URL = "http://localhost:17171/tull/"
+USER_HOME = expanduser("~")
+TULL_DATA_DIR = USER_HOME + "/.tull/"
+
+PAGE_REFRESH_JS = '<script>window.setInterval("refresh()", 10000); function refresh() {window .location.reload();}</script>'
+
+# some useful html/js/css related stuff
 
 
-TULL_URL = "http://localhost:17171/tull/"
-HOME = expanduser("~")
-LOG_PATH = HOME + "/.tull/"
+def html(x):
+    return "<html>" + x + "</html>"
 
 
-if len(sys.argv) > 1 and sys.argv[1] == "stop":
+def body(x):
+    return "<body>" + x + "</body>"
+
+
+def head(x):
+    return "<head>" + x + "</head>"
+
+
+def halt_tull_server():
     try:
-        requests.get("http://localhost:17171/halt")
+        requests.get("http://localhost:17171/server/halt")
     except:
         pass
-    raise SystemExit
+    sys.exit(0)
 
-if len(sys.argv) > 1 and sys.argv[1] == "server":
+
+def start_tull_server_flask_app():
+
     # disable flask banner
     cli = sys.modules["flask.cli"]
     cli.show_server_banner = lambda *x: None
 
+    # create flask app with apis
     app = Flask(__name__)
+
+    # @app.route("/tull/")
+    # def get_list_():
+    #     return get_list()
 
     @app.route("/tull")
     def get_list():
         response = ""
-        response += "<html>"
 
         for link in [
             '<a href="/tull/' + x + '">' + x + "</a>"
             for x in sorted(
-                os.listdir(LOG_PATH),
-                key=lambda x: os.path.getmtime(LOG_PATH + x),
+                os.listdir(TULL_DATA_DIR),
+                key=lambda x: os.path.getctime(TULL_DATA_DIR + x),
                 reverse=True,
             )
         ]:
             response += link + "<br></br>"
 
-        response += "</html>"
-        return response
+        return html(body(response))
 
     @app.route("/tull/<tull_id>")
     def get_logs(tull_id):
-        with open(LOG_PATH + tull_id) as f:
-            return "<br>".join([x for x in f.readlines()])
 
-    @app.route("/halt")
+        try:
+            if tull_id in os.listdir(TULL_DATA_DIR):
+                with open(TULL_DATA_DIR + tull_id) as f:
+                    return html(
+                        head(PAGE_REFRESH_JS)
+                        + body("<br>".join([x for x in f.readlines()]))
+                    )
+        except:
+            return html(body("No data found in log stream"))
+
+    @app.route("/server/halt")
     def halt_server():
-        import signal
-
         os.kill(os.getpid(), signal.SIGKILL)
 
     app.run(debug=False, use_reloader=False, port=17171)
     sys.exit(0)
 
 
-try:
-    requests.get(TULL_URL)
-except:
-    FNULL = open(os.devnull, "w")
-    subprocess.Popen(
-        [os.path.realpath(__file__), "server"],
-        close_fds=True,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.STDOUT,
-    )
-    time.sleep(1)
+def ensure_tull_server():
+    try:
+        requests.get(TULL_API_URL)
+    except:
+        f = open(TULL_DATA_DIR + "tull-server.log", "a+")
 
-sid = str(uuid4())
-cnt = 0
-os.system("open " + TULL_URL + sid)
+        subprocess.Popen(
+            [os.path.realpath(__file__), "start"], close_fds=True, stdout=f, stderr=f
+        )
+        time.sleep(1)
+        if os.isatty(0):
+            print(
+                "Server was not running, so started it. STDIN would go into the tull."
+            )
 
-try:
-    if not os.path.isdir(LOG_PATH):
-        os.mkdir(LOG_PATH)
-except:
-    raise Exception("Can't create the .tull folder")
 
-try:
-    with open(LOG_PATH + sid, "a+") as f:
-        for line in sys.stdin:
-            f.write(line)
-            sys.stdout.write(line)
-            cnt += 1
-except:
-    pass
+def ensure_tull_data_dir():
+    try:
+        if not os.path.isdir(TULL_DATA_DIR):
+            os.mkdir(TULL_DATA_DIR)
+    except:
+        raise Exception("TULL_DATA_DIR creation failed.")
 
-finally:
-    if cnt == 0:
-        os.remove(LOG_PATH + sid)
+
+def main_loop(sid):
+    line_cnt = 0
+    try:
+        with open(TULL_DATA_DIR + sid, "a+") as f:
+            for line in sys.stdin:
+                f.write(line)
+                f.flush()
+                sys.stdout.write(line)
+                line_cnt += 1
+    except:
+        pass
+
+    finally:
+        if line_cnt == 0:
+            os.remove(TULL_DATA_DIR + sid)
+
+
+def setup_this_tull():
+    sid = str(uuid4())
+
+    # ensure file creation
+    with open(TULL_DATA_DIR + sid, "w"):
+        pass
+
+    # open browser window to current tull stream
+    try:
+        os.system("open " + TULL_API_URL + sid)
+    except:
+        pass
+
+    main_loop(sid)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "stop":
+        halt_tull_server()
+
+    if len(sys.argv) > 1 and sys.argv[1] == "start":
+        start_tull_server_flask_app()
+
+    ensure_tull_server()
+    ensure_tull_data_dir()
+
+    setup_this_tull()
