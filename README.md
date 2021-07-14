@@ -1,4 +1,4 @@
-# TULL - `T`eleport `U`r `L`ogs with `L`ove
+# `T`eleport `U`r `L`ogs with `L`ove
 
 ```
             .----------------.  .----------------.  .----------------.  .----------------.   
@@ -16,7 +16,11 @@
 
 `tull` is a command line utility which with help of a background server, organizes your log storage and sharing workflow.
 
-Installion with pip. `pip install tull`
+### Installion
+
+`pip install tull`
+
+### Usage
 
 Execute `tull web` and it will give you few urls. Open the one with TULL_WEB_URL in front.
 
@@ -37,9 +41,11 @@ All these above commands will start sending logs to tull server as well as trans
 1. you have your logs stored for future reference in an organized manner
 2. you can share the url to anyone having access to your server via http. 
 
-Read the code and see for yourself - less than 150 lines I guess. 
+Code is less than 150 lines, and not much fancy
 
-Future Plans:-
+
+### Future Roadmap
+
  1. Security 
  2. Better UI for /web interface
  3. API pagination for /api interface
