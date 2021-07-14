@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# Author: l0k3ndr
+# Email: lokendra.sharma.one[at]gmail.com
+
 import os
 import requests
 import signal
