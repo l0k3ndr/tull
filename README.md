@@ -34,7 +34,7 @@ For each session `tull` generates a ID, and that ID is used to associate the dat
 
 Type anything into the active terminal. On the web also on the correponding ID page it will reflect.
 
-Exit with Ctrl-D.
+Exit with Ctrl-D. (Currently Ctrl-C is causing the flask server to stop as well along with stream caputre, working on it)
 
 Outcome:
 1. you have your logs stored for future reference in an organized manner
