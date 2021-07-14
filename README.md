@@ -13,8 +13,7 @@
            | '--------------' || '--------------' || '--------------' || '--------------' |  
             '----------------'  '----------------'  '----------------'  '----------------'   
 ```
-
-`tull` is a command line utility which with help of a background server, organizes your log storage and sharing workflow. Whatever you pipe into it, will get a unique UUID and the data gets stored locally - accessible via a flask server with simple endpoints. You can use ngrok or localtunnel then to share it outside LAN as well.
+Whatever you pipe into `tull`, will get a unique UUID and the data gets stored locally - accessible via a flask server with simple endpoints. You can use ngrok or localtunnel then to share it outside LAN as well.
 
 ### Installion
 
