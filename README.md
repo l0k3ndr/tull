@@ -13,7 +13,7 @@
            | '--------------' || '--------------' || '--------------' || '--------------' |  
             '----------------'  '----------------'  '----------------'  '----------------'   
 ```
-Whatever you pipe into `tull`, will get a unique UUID and the data gets stored locally - accessible via a flask server with simple endpoints. You can use ngrok or localtunnel then to share it outside LAN as well.
+Whatever you pipe into `tull`, will get a unique UUID and the data gets stored locally - accessible via a flask server with simple endpoints. You can use ngrok or localtunnel then to share it outside LAN as well. It won't break the console as it also redirects the stream transparently to stdout.
 
 ### Installion
 
