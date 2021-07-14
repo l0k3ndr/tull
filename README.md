@@ -41,6 +41,10 @@ Outcome:
 
 [youtube demo](https://www.youtube.com/watch?v=AQ6V2fIx1tw)
 
+### Disclaimer
+
+This is a personal project, don't use this in production or anywhere where you are not sure of security impacts. Until a v1.0 everything is considered unstable. :)
+
 ### Future Roadmap
 
  1. Security 
