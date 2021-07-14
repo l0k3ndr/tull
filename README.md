@@ -20,6 +20,12 @@
 
 `pip install tull`
 
+OR
+
+1. clone the repo
+2. create a venv and activate it
+3. pip install -r requirements.txt
+
 ### Usage
 
 Execute `tull web` and it will give you few urls. Open the one with TULL_WEB_URL in front.
