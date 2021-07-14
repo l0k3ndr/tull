@@ -40,6 +40,7 @@ Outcome:
 1. you have your logs stored for future reference in an organized manner
 2. you can share the url to anyone having access to your server via http. 
 
+[youtube demo](https://www.youtube.com/watch?v=AQ6V2fIx1tw)
 
 ### Future Roadmap
 
