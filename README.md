@@ -30,18 +30,9 @@ Type anything into the active terminal. On the web also on the correponding ID p
 
 Exit with Ctrl-D.
 
-`ls | tull`
-
-`ps | tull`
-
-`python manage.py runserver 2>&1 | tull`
-
-All these above commands will start sending logs to tull server as well as transparently pass them to output. That way: 
-
+Outcome:
 1. you have your logs stored for future reference in an organized manner
 2. you can share the url to anyone having access to your server via http. 
-
-Code is less than 150 lines, and not much fancy
 
 
 ### Future Roadmap
