@@ -3,6 +3,7 @@
 # Author: l0k3ndr
 # Email: lokendra.sharma.one[at]gmail.com
 
+import argparse
 import os
 import requests
 import signal
@@ -229,7 +230,6 @@ def setup_this_tull():
 
 
 if __name__ == "__main__":
-    import argparse
 
     parser = argparse.ArgumentParser()
 
