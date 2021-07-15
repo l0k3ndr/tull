@@ -27,6 +27,8 @@ OR
 
 ### Usage
 
+[![TULL-TUTORIAL](https://img.youtube.com/vi/AQ6V2fIx1tw/0.jpg)](https://www.youtube.com/watch?v=AQ6V2fIx1tw)
+
 **STDIN Test:**
 Execute `tull web` and it will give you few urls. Open the one with TULL_WEB_URL in front.
 For each session `tull` generates a ID, and that ID is used to associate the data of that session.
@@ -39,8 +41,6 @@ Execute `ps ax | tull` ; you can see the output of your command but also the log
 Outcome:
 1. you have your logs stored for future reference in an organized manner
 2. you can share the url to anyone having access to your server via http. 
-
-[youtube demo](https://www.youtube.com/watch?v=AQ6V2fIx1tw)
 
 What I do generally is hook it up with the ngrok tunnel. ngrok is a tool which you can use to create secure tunnels from your local ports in one-liner. So just do ```ngrok http 17171``` and you can share these logs with anyone on the other side of internet.
 
