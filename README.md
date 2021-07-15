@@ -50,13 +50,11 @@ This is a personal project, don't use this in production or anywhere where you a
 
 ### Future Roadmap
 
- 1. Security 
- 2. Better UI for /web interface
+ 1. Security - add basic auth 
+ 2. Better UI for /web interface - make it easier to search/navigage/organize logs
  3. API pagination for /api interface
- 4. Streaming for /raw interface
+ 4. Streaming for /raw interface - also, how to read last n lines fast!
  5. Make readme look good
- 6. Add tutorial
- 7. Add gif
 
 ### How it works
 
