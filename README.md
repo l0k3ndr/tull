@@ -25,6 +25,8 @@ OR
 2. create a venv and activate it
 3. pip install -r requirements.txt
 
+I have tested this on Mac M1 Big Sur; but most likely it should work for all
+
 ### Usage
 
 [![TULL-TUTORIAL](https://img.youtube.com/vi/AQ6V2fIx1tw/0.jpg)](https://www.youtube.com/watch?v=AQ6V2fIx1tw)
