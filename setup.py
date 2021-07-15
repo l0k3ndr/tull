@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="tull",
-    version="0.7",
+    version="0.8",
     scripts=["tull"],
     author="Lokendra Sharma",
     author_email="lokendra.sharma.one@gmail.com",

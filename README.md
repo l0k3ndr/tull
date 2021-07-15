@@ -59,3 +59,7 @@ This is a personal project, don't use this in production or anywhere where you a
 ### How it works
 
 When you run this, it creates a folder .tull in your user home directory. Also, at the same time it starts a background process which runs the flask server with some simple apis if it is already not started. Then whenever any data is piped into it, or it is invoked from command line, it creates a unique ID, and starts storing the pipe stream data into that file and also transparently writing it to stdout. That way it doesn't break your existing flow, saves the logs with unique ID and allows you to browse them later. Not too fancy, but useful.
+
+### Release Notes
+
+v0.8: added log follow capability and log listing capability
