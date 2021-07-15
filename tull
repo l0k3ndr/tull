@@ -159,7 +159,7 @@ def start_tull_server_flask_app():
     def halt_server():
         os.kill(os.getpid(), signal.SIGKILL)
 
-    app.run(host=HOST, load_dotenv=False, debug=False, use_reloader=False, port=17171)
+    app.run(host=HOST, load_dotenv=False, debug=False, use_reloader=False, port=PORT)
     sys.exit(0)
 
 
