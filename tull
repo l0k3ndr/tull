@@ -10,6 +10,7 @@ import subprocess
 import sys
 import time
 
+from datetime import datetime
 from flask import Flask, jsonify
 from os.path import expanduser
 from uuid import uuid4
@@ -237,6 +238,9 @@ if __name__ == "__main__":
     parser.add_argument("--start", action="store_true")
     parser.add_argument("--stop", action="store_true")
     parser.add_argument("--status", action="store_true")
+    parser.add_argument("--ls", action="store_true")
+    parser.add_argument("--follow", type=str)
+
 
     parser.add_argument(
         "--host", help="default is localhost", type=str, default="localhost"
@@ -245,6 +249,29 @@ if __name__ == "__main__":
     parser.add_argument("--port", help="default is 17171", type=int, default=17171)
 
     args = parser.parse_args()
+
+    if args.ls:
+        print( "\n".join(
+            (str(datetime.fromtimestamp(os.path.getatime(TULL_DATA_DIR + x))) + "\t" + x)
+            for x in sorted(
+                os.listdir(TULL_DATA_DIR),
+                key=lambda x: os.path.getatime(TULL_DATA_DIR + x),
+                reverse=True,
+            )
+        ))
+        sys.exit(0)
+
+
+
+    if args.follow:
+        sid = args.follow.strip()
+        f = subprocess.Popen(['tail','-F', TULL_DATA_DIR + sid],\
+        stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        while True:
+            line = f.stdout.readline()
+            print(line)
+        sys.exit(0)
+
 
     if args.host:
         HOST = args.host
