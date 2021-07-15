@@ -246,6 +246,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    if args.host:
+        HOST = args.host
+
+    if args.port:
+        PORT = args.port
+
+
     if args.status:
         print(check_tull_server_status())
         sys.exit(0)
@@ -257,12 +264,6 @@ if __name__ == "__main__":
     if args.start:
         start_tull_server_flask_app()
         sys.exit(0)
-
-    if args.host:
-        HOST = args.host
-
-    if args.port:
-        PORT = args.port
 
     if args.web:
         print("TULL_API_URL", TULL_API_URL)
