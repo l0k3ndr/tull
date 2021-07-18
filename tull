@@ -222,8 +222,8 @@ def main_loop(sid):
             os.remove(TULL_DATA_DIR + sid)
 
 
-def setup_this_tull():
-    sid = str(uuid4())
+def setup_this_tull(sid):
+    sid = sid or str(uuid4())
 
     # ensure file creation
     with open(TULL_DATA_DIR + sid, "w"):
@@ -246,8 +246,9 @@ if __name__ == "__main__":
     parser.add_argument("--start", action="store_true")
     parser.add_argument("--stop", action="store_true")
     parser.add_argument("--status", action="store_true")
-    parser.add_argument("--ls", action="store_true")
+    parser.add_argument("--ls", "--list", action="store_true")
     parser.add_argument("--follow", type=str)
+    parser.add_argument("--reopen", type=str)
 
     parser.add_argument(
         "--host", help="default is localhost", type=str, default="localhost"
@@ -256,6 +257,12 @@ if __name__ == "__main__":
     parser.add_argument("--port", help="default is 17171", type=int, default=17171)
 
     args = parser.parse_args()
+    sid = None
+
+    if args.reopen:
+        sid = args.reopen.strip()
+    else:
+        sid = None
 
     if args.ls:
         print(
@@ -314,4 +321,4 @@ if __name__ == "__main__":
     ensure_tull_server()
     ensure_tull_data_dir()
 
-    setup_this_tull()
+    setup_this_tull(sid=sid)
