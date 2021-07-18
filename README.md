@@ -50,13 +50,28 @@ What I do generally is hook it up with the ngrok tunnel. ngrok is a tool which y
 
 This is a personal project, don't use this in production or anywhere where you are not sure of security impacts. Until a v1.0 everything is considered unstable. :)
 
-### Future Roadmap
+### Future Roadmap/Updates
 
- 1. Security - add basic auth 
- 2. Better UI for /web interface - make it easier to search/navigage/organize logs
- 3. API pagination for /api interface
- 4. Streaming for /raw interface - also, how to read last n lines fast!
- 5. Make readme look good
+ 1. Security - add basic auth if needed
+ 2. HTTPS exposure
+ 3. add documentation and video --follow feature
+ 4. make --follow feature work over the network
+ 5. --expose-via=ngrok | --expose-via=localtunnel 
+ 6. How to use --tutorial mode
+ 7. Better UI for /web interface - make it easier to search/navigage/organize logs
+ 8. / and /tull endpoints need to show something
+ 9. API pagination for /api interface
+ 10. Streaming for /raw interface - also, how to read last n lines fast!
+ 11. Make readme look professional
+ 12. add unit tests
+ 13. start creating tags with pip pushes on version bumps
+ 14. follow semantic versioning and freeze external api models
+ 15. add colors to terminal outputs
+ 16. add timestamps to logs
+ 17. allow multiple log streams to be merged
+ 18. allow paginated access to logs
+ 19. improve the art of readme page | add colors
+ 20. add build banner in readme
 
 ### How it works
 
