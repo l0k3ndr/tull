@@ -54,9 +54,10 @@ This is a personal project, don't use this in production or anywhere where you a
 
  1. Security - add basic auth 
  2. Better UI for /web interface - make it easier to search/navigage/organize logs
- 3. API pagination for /api interface
- 4. Streaming for /raw interface - also, how to read last n lines fast!
- 5. Make readme look good
+ 3. / and /tull endpoints need to show something
+ 4. API pagination for /api interface
+ 5. Streaming for /raw interface - also, how to read last n lines fast!
+ 6. Make readme look good
 
 ### How it works
 
