@@ -318,7 +318,7 @@ if __name__ == "__main__":
         print("TULL_WEB_URL", TULL_WEB_URL)
         print("TILL_RAW_URL", TULL_RAW_URL)
 
-    ensure_tull_server()
     ensure_tull_data_dir()
+    ensure_tull_server()
 
     setup_this_tull(sid=sid)
