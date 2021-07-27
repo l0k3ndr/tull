@@ -6,42 +6,30 @@
 import argparse
 import os
 import requests
-import signal
 import subprocess
 import sys
 import time
 
 from datetime import datetime
-from flask import Flask, jsonify
-from os.path import expanduser
 from uuid import uuid4
 
-HOST = "127.0.0.1"
-PORT = 17171
-
-
-# API is Json, WEB is HTML, RAW is raw data
-TULL_API_URL = "http://{}:{}/tull/api".format(HOST, int(PORT))
-TULL_WEB_URL = "http://{}:{}/tull/web".format(HOST, int(PORT))
-TULL_RAW_URL = "http://{}:{}/tull/raw".format(HOST, int(PORT))
-
-# We make a .tull directory in case it doesn't exist TODO add configurability for this
-USER_HOME = expanduser("~")
-TULL_DATA_DIR = USER_HOME + "/.tull/data/"
-TULL_META_DIR = USER_HOME + "/.tull/meta/"
-
-# <UI_RELATED_MINIMAL_CODING>
-PAGE_REFRESH_JS = '<script>window.setInterval("refresh()", 10000); function refresh() {window .location.reload();}</script>'
-html = lambda x: "<html>" + x + "</html>"
-body = lambda x: "<body>" + x + "</body>"
-head = lambda x: "<head>" + x + "</head>"
-# </UI_RELATED_MINIMAL_CODING>
+from server import app
+from constants import (
+    HOST,
+    PORT,
+    USER_HOME,
+    TULL_API_URL,
+    TULL_WEB_URL,
+    TULL_RAW_URL,
+    TULL_DATA_DIR,
+    TULL_META_DIR
+)
 
 
 # client can halt the server via a api call
 def halt_tull_server():
     try:
-        requests.get("http://{}:{}/server/halt".format(HOST, PORT))
+        requests.get(f"http://{HOST}:{PORT}/server/halt")
     except:
         pass
     sys.exit(0)
@@ -50,7 +38,7 @@ def halt_tull_server():
 # hit the web interface to check if tull server is up
 def check_tull_server_status():
     try:
-        requests.get("http://{}:{}/tull/web".format(HOST, PORT))
+        requests.get(f"http://{HOST}:{PORT}/tull/web")
         return True
     except:
         pass
@@ -59,105 +47,6 @@ def check_tull_server_status():
 
 # the interface is a simple flask app
 def start_tull_server_flask_app():
-
-    # disable flask banner
-    cli = sys.modules["flask.cli"]
-    cli.show_server_banner = lambda *x: None
-
-    # create flask app with apis
-    app = Flask(__name__)
-
-    @app.route("/tull/raw/")
-    def get_list_raw_():
-        return get_list_api()
-
-    @app.route("/tull/raw")
-    def get_list_raw():
-        return "\n".join(
-            x
-            for x in sorted(
-                os.listdir(TULL_DATA_DIR),
-                key=lambda x: os.path.getatime(TULL_DATA_DIR + x),
-                reverse=True,
-            )
-        )
-
-    @app.route("/tull/raw/<tull_id>")
-    def get_logs_raw(tull_id):
-
-        try:
-            if tull_id in os.listdir(TULL_DATA_DIR):
-                with open(TULL_DATA_DIR + tull_id) as f:
-                    return f.read()
-        except:
-            return ""
-
-    @app.route("/tull/api/")
-    def get_list_api_():
-        return get_list_api()
-
-    @app.route("/tull/api")
-    def get_list_api():
-        return jsonify(
-            {
-                "data": [
-                    x
-                    for x in sorted(
-                        os.listdir(TULL_DATA_DIR),
-                        key=lambda x: os.path.getatime(TULL_DATA_DIR + x),
-                        reverse=True,
-                    )
-                ]
-            }
-        )
-
-    @app.route("/tull/api/<tull_id>")
-    def get_logs_api(tull_id):
-
-        try:
-            if tull_id in os.listdir(TULL_DATA_DIR):
-                with open(TULL_DATA_DIR + tull_id) as f:
-                    return jsonify({"data": [x for x in f.readlines()]})
-        except:
-            return jsonify({"data": None})
-
-    @app.route("/tull/web/")
-    def get_list_():
-        return get_list()
-
-    @app.route("/tull/web")
-    def get_list():
-        response = ""
-
-        for link in [
-            '<a href="/tull/web/' + x + '">' + x + "</a>"
-            for x in sorted(
-                os.listdir(TULL_DATA_DIR),
-                key=lambda x: os.path.getatime(TULL_DATA_DIR + x),
-                reverse=True,
-            )
-        ]:
-            response += link + "<br></br>"
-
-        return html(body(response))
-
-    @app.route("/tull/web/<tull_id>")
-    def get_logs(tull_id):
-
-        try:
-            if tull_id in os.listdir(TULL_DATA_DIR):
-                with open(TULL_DATA_DIR + tull_id) as f:
-                    return html(
-                        head(PAGE_REFRESH_JS)
-                        + body("<br>".join([x for x in f.readlines()]))
-                    )
-        except:
-            return html(body("No data found in log stream"))
-
-    @app.route("/server/halt")
-    def halt_server():
-        os.kill(os.getpid(), signal.SIGKILL)
-
     app.run(host=HOST, load_dotenv=False, debug=False, use_reloader=False, port=PORT)
     sys.exit(0)
 
@@ -167,7 +56,7 @@ def ensure_tull_server():
     try:
         requests.get(TULL_API_URL)
     except:
-        f = open(TULL_META_DIR + "tull-server.log", "a+")
+        f = open(f"{TULL_META_DIR}/tull-server.log", "a+")
         try:
             subprocess.Popen(
                 [os.path.realpath(__file__), "--start"],
@@ -208,7 +97,7 @@ def ensure_tull_data_dir():
 def main_loop(sid):
     line_cnt = 0
     try:
-        with open(TULL_DATA_DIR + sid, "a+") as f:
+        with open(f"{TULL_DATA_DIR}/{sid}", "a+") as f:
             for line in sys.stdin:
                 f.write(line)
                 f.flush()
@@ -219,14 +108,14 @@ def main_loop(sid):
 
     finally:
         if line_cnt == 0:
-            os.remove(TULL_DATA_DIR + sid)
+            os.remove(f"{TULL_DATA_DIR}/{sid}")
 
 
 def setup_this_tull(sid):
     sid = sid or str(uuid4())
 
     # ensure file creation
-    with open(TULL_DATA_DIR + sid, "w"):
+    with open(f"{TULL_DATA_DIR}/{sid}", "w"):
         pass
 
     # # open browser window to current tull stream
@@ -268,13 +157,13 @@ if __name__ == "__main__":
         print(
             "\n".join(
                 (
-                    str(datetime.fromtimestamp(os.path.getatime(TULL_DATA_DIR + x)))
+                    str(datetime.fromtimestamp(os.path.getatime(f"{TULL_DATA_DIR}/{sid}")))
                     + "\t"
-                    + x
+                    + sid
                 )
-                for x in sorted(
+                for sid in sorted(
                     os.listdir(TULL_DATA_DIR),
-                    key=lambda x: os.path.getatime(TULL_DATA_DIR + x),
+                    key=lambda x: os.path.getatime(f"{TULL_DATA_DIR}/{x}"),
                     reverse=True,
                 )
             )
@@ -286,7 +175,7 @@ if __name__ == "__main__":
         # currently using tail command, but how to handle if it
         # does not exist?
         f = subprocess.Popen(
-            ["tail", "-F", TULL_DATA_DIR + sid],
+            ["tail", "-F", f"{TULL_DATA_DIR}/{sid}"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
