@@ -15,17 +15,11 @@
 ```
 Whatever you pipe into `tull`, will get a unique UUID and the data gets stored locally - accessible via a flask server with simple endpoints. You can use ngrok or localtunnel then to share it outside LAN as well. It won't break the console as it also redirects the stream transparently to stdout.
 
-### Installion
-
-`pip install tull`
-
-OR
+### Installation
 
 1. clone the repo
-2. create a venv and activate it
-3. pip install -r requirements.txt
-
-I have tested this on Mac M1 Big Sur; but most likely it should work for all
+2. install [Rust](https://www.rust-lang.org/learn/get-started)
+3. then run `cargo build`
 
 ### Usage
 
